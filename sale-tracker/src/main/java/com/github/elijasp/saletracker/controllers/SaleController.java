@@ -1,6 +1,7 @@
 package com.github.elijasp.saletracker.controllers;
 
 import com.github.elijasp.saletracker.domain.Sale;
+import com.github.elijasp.saletracker.services.ErrorValidationService;
 import com.github.elijasp.saletracker.services.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,24 +21,20 @@ import java.util.Map;
 public class SaleController {
     // == fields ==
     private final SaleService saleService;
-
+    private final ErrorValidationService validationService;
     // == constructor based DI ==
     @Autowired
-    public SaleController(SaleService saleService) {
+    public SaleController(SaleService saleService, ErrorValidationService validationService) {
         this.saleService = saleService;
+        this.validationService = validationService;
     }
 
     // == save ==
     @PostMapping("")
     public ResponseEntity<?> save(@Valid @RequestBody Sale sale, BindingResult result) {
-        if (result.hasErrors()) {
-            // structure response {"field" : "defaultMessage"}
-            Map<String, String> validationErrors = new HashMap<>();
-            result.getFieldErrors().forEach(err -> {
-                validationErrors.put(err.getField(), err.getDefaultMessage());
-            });
-
-            return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+        ResponseEntity<?> validationErrors = validationService.validateErrors(result);
+        if(validatedResponse == null){
+            return validatedResponse;
         }
         Sale savedSale = saleService.save(sale);
         return new ResponseEntity<>(savedSale, HttpStatus.OK);
