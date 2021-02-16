@@ -33,8 +33,8 @@ public class SaleController {
     @PostMapping("")
     public ResponseEntity<?> save(@Valid @RequestBody Sale sale, BindingResult result) {
         ResponseEntity<?> validationErrors = validationService.validateErrors(result);
-        if(validatedResponse == null){
-            return validatedResponse;
+        if(validationErrors == null){
+            return validationErrors;
         }
         Sale savedSale = saleService.save(sale);
         return new ResponseEntity<>(savedSale, HttpStatus.OK);
